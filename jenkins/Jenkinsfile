@@ -12,14 +12,14 @@ pipeline {
         }
         stage('Sonar Analysis') {
             steps {
-                  sh '''
-                mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
-                    -Dsonar.host.url=http://13.50.246.94:9000 \
-                    -Dsonar.token=squ_093817fe64b396b3ca8ad1642543582ec70b6b87 \
-                    -Dsonar.projectKey=simple-java-maven-app \
-                    -Dsonar.java.binaries=target/classes \
-                    -Dsonar.scanner.force-deprecated-java-version=true
-                ''' 
+                  sh """
+mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
+  -Dsonar.projectKey=simple-java-maven-app \
+  -Dsonar.host.url=${SONAR_HOST_URL} \
+  -Dsonar.login=${SONAR_TOKEN} \
+  -Dsonar.coverage.jacoco.xmlReportPaths= \
+  -Dreporting.plugins.skip=true
+"""
                    }
        }
 // THIS IS THE BUILD STAGE
