@@ -1,48 +1,30 @@
 pipeline {
     agent any
-
-    // Parameters to pass SonarQube server info
-    parameters {
-        string(name: 'SONAR_URL', defaultValue: 'http://13.50.246.94:9000', description: 'SonarQube server URL')
-        string(name: 'SONAR_TOKEN', defaultValue: '', description: 'SonarQube authentication token')
-    }
-
     tools {
-        maven 'maven3'   // Name of Maven installation in Jenkins global tools
-        jdk 'jdk17'      // Name of JDK installation in Jenkins global tools
+        maven 'maven3'
+        jdk 'jdk17'
     }
-
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-
+        stage('Sonar Analysis') {
+            steps {
+                // This compiles the code and sends it to SonarQube
+                sh 'mvn clean compile org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
+                    -Dsonar.host.url=http://13.50.246.94:9000 \
+                    -Dsonar.token=squ_093817fe64b396b3ca8ad1642543582ec70b6b87 \
+                    -Dsonar.projectKey=simple-java-maven-app'
+            }
+        }
+        // THIS IS THE BUILD STAGE
         stage('Build') {
             steps {
-                sh 'mvn clean install -DskipTests=false'
+                // This creates the actual JAR file in the target folder
+                sh 'mvn clean package -DskipTests' 
             }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                withEnv(["SONAR_HOST_URL=${params.SONAR_URL}", "SONAR_TOKEN=${params.SONAR_TOKEN}"]) {
-               sh """  
-                  mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
-                -Dsonar.host.url=${SONAR_URL} \
-                -Dsonar.token=${params.SONAR_TOKEN}
-               """
-                    
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            echo "Pipeline finished."
         }
     }
 }
