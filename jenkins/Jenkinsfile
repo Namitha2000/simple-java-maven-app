@@ -8,7 +8,7 @@ pipeline {
     }
 
     tools {
-        maven 'Maven3'   // Name of Maven installation in Jenkins global tools
+        maven 'maven3'   // Name of Maven installation in Jenkins global tools
         jdk 'jdk17'      // Name of JDK installation in Jenkins global tools
     }
 
