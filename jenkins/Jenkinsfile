@@ -12,14 +12,18 @@ pipeline {
         }
         stage('Sonar Analysis') {
             steps {
-                  sh """
-                  mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
+                 // We use -N to prevent Maven from looking at sub-modules or extra reports
+                // We use the full plugin identifier to force a standalone execution
+                sh '''
+                mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
+                  -N \
                   -Dsonar.projectKey=simple-java-maven-app \
                   -Dsonar.host.url=http://13.50.246.94:9000 \
                   -Dsonar.token=squ_093817fe64b396b3ca8ad1642543582ec70b6b87 \
                   -Dsonar.java.binaries=target/classes \
-                  -Dreporting.plugins.skip=true
-                  """
+                  -Dreporting.plugins.skip=true \
+                  -Dmaven.reporting.skip=true
+                '''
                    }
        }
 // THIS IS THE BUILD STAGE
