@@ -1,27 +1,26 @@
 pipeline {
     agent any
 
-    // Parameters to pass SonarQube server info
     parameters {
         string(name: 'SONAR_URL', defaultValue: 'http://13.50.246.94:9000', description: 'SonarQube server URL')
         string(name: 'SONAR_TOKEN', defaultValue: '', description: 'SonarQube authentication token')
     }
 
     tools {
-        maven 'maven3'   // Name of Maven installation in Jenkins global tools
-        jdk 'jdk17'      // Name of JDK installation in Jenkins global tools
+        maven 'maven3'
+        jdk 'jdk17'
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Build') {
+        stage('Build & Test') {
             steps {
+                // This command generates the jacoco.xml file needed by Sonar
                 sh 'mvn clean install -DskipTests=false'
             }
         }
@@ -33,9 +32,8 @@ pipeline {
                     mvn sonar:sonar \
                         -Dsonar.projectKey=simple-java-maven-app \
                         -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_TOKEN}
-                        -Dsonar.coverage.jacoco.xmlReportPaths=  # disables coverage report
-
+                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                     """
                 }
             }
@@ -48,4 +46,3 @@ pipeline {
         }
     }
 }
-
