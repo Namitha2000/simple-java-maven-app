@@ -29,13 +29,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withEnv(["SONAR_HOST_URL=${params.SONAR_URL}", "SONAR_TOKEN=${params.SONAR_TOKEN}"]) {
-                    sh """
-                        org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
-                        -Dsonar.projectKey=simple-java-maven-app \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_TOKEN} \
-                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-                    """
+               sh """  
+                  mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
+                -Dsonar.host.url=${SONAR_URL} \
+                -Dsonar.token=${params.SONAR_TOKEN}
+               """
+                    
                 }
             }
         }
