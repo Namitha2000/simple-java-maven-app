@@ -1,33 +1,49 @@
-pipeline
-{
+pipeline {
+    agent any
 
-agent {
-  label 'DevServer'
-}
-
-tools {
-  maven 'mymaven'
-}
-
-stages{
-
-    stage('build')
-    {
-        steps {
-            sh 'mvn clean package'
-        }
-
-        post {
-        success {
-            archiveArtifacts artifacts: '**/target/*.war'
-                 }
-            }
-
+    // Parameters to pass SonarQube server info
+    parameters {
+        string(name: 'SONAR_URL', defaultValue: 'http://13.50.246.94:9000', description: 'SonarQube server URL')
+        string(name: 'SONAR_TOKEN', defaultValue: '', description: 'SonarQube authentication token')
     }
 
-   
+    tools {
+        maven 'Maven3'   // Name of Maven installation in Jenkins global tools
+        jdk 'jdk17'      // Name of JDK installation in Jenkins global tools
+    }
 
-    
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install -DskipTests'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withEnv(["SONAR_HOST_URL=${params.SONAR_URL}", "SONAR_TOKEN=${params.SONAR_TOKEN}"]) {
+                    sh """
+                    mvn sonar:sonar \
+                        -Dsonar.projectKey=simple-java-maven-app \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN}
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Pipeline finished."
+        }
+    }
 }
 
-}
